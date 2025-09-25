@@ -226,8 +226,15 @@ class GoalRank(nn.Module):
         prefix_context = torch.zeros(B, self.lrm_pv_input_dim, device=user_input.device)
         available_mask = torch.ones(B, self.stage1_choose, dtype=torch.bool, device=user_input.device)
 
+<<<<<<< HEAD
         final_scores = torch.zeros(B, self.stage1_choose, device=user_input.device)
 
+=======
+        # 存储分数
+        final_scores = torch.zeros(B, self.stage1_choose, device=user_input.device)
+
+        # 递减分数，比如 1, 0.5, 0.33...
+>>>>>>> 32d6d78 (push code)
         step_scores = torch.tensor([1.0 / (i+1) for i in range(L)], device=user_input.device)
 
 
@@ -246,6 +253,7 @@ class GoalRank(nn.Module):
                 lrm_encoder_output_step.view(B*self.stage1_choose, self.lrm_pv_hidden_dims)
             ).view(B, self.stage1_choose)
 
+<<<<<<< HEAD
             logits_masked = rerank_score_step.masked_fill(~available_mask, -1e9)
 
             next_item = torch.argmax(logits_masked, dim=-1, keepdim=True)  # [B,1]
@@ -254,6 +262,21 @@ class GoalRank(nn.Module):
 
             available_mask.scatter_(1, next_item, False)
 
+=======
+            # mask 已选 item
+            logits_masked = rerank_score_step.masked_fill(~available_mask, -1e9)
+
+            # 选取 top1
+            next_item = torch.argmax(logits_masked, dim=-1, keepdim=True)  # [B,1]
+
+            # 给这个位置打分 (1, 0.5, 0.33, ...)
+            final_scores.scatter_(1, next_item, step_scores[step])
+
+            # 更新 mask
+            available_mask.scatter_(1, next_item, False)
+
+            # 更新 prefix_context
+>>>>>>> 32d6d78 (push code)
             gathered_emb = candidate_item_emb[torch.arange(B, device=user_input.device), next_item.squeeze(1), :]
             proj_gathered = self.PVItemInputMap(gathered_emb)
             proj_gathered = self.PVInputNorm(proj_gathered)

@@ -72,7 +72,7 @@ self.evaluator.load_state_dict(evaluator_state_dict)
 self.evaluator.eval()
 self.evaluator.to(args.device)
 ```
-2. Group Construction by several ways, For example, we use  Softmax-based stochastic sampling
+2. Group Construction by several ways. In model/GoalRank.py, we adopt autoregressive list construction method, Furthemore, we give  Softmax-based stochastic sampling in there.
 ```
 ## Softmax-based stochastic sampling
 def prob_transform_matrix(matrix, bs):
